@@ -9,20 +9,12 @@
 char mapdata[MAX][MAX];
 bool visited[MAX][MAX][MAX][MAX];
 
-enum Direction {
-	UP,
-	LEFT,
-	RIGHT,
-	DOWN,
-	LAST
-};
-
 typedef struct coords {
-	int RCoord[2];
-	int BCoord[2];
-	int count;
+	int RCoord[2] = {0,0};
+	int BCoord[2] = {0,0};
+	int count = 0;
 	bool operator==(coords b) {
-		if (std::tie(RCoord[0], RCoord[1], BCoord[0], BCoord[1]) == std::tie(b.RCoord[0], b.RCoord[1], b.BCoord[0], b.BCoord[1])) {
+		if (RCoord[0] == b.RCoord[0] && RCoord[1] == b.RCoord[1] && BCoord[0] == b.BCoord[0] && BCoord[1] == b.BCoord[1]) {
 			return true;
 		}
 		else {
@@ -31,45 +23,20 @@ typedef struct coords {
 	}
 }Coords;
 
-Coords moveOneTo(Direction d, Coords a) {
-	Coords b = a;
-	switch (d) {
-	case UP:
-		b.RCoord[0]--;
-		b.BCoord[0]--;
-		break;
-	case DOWN:
-		b.RCoord[0]++;
-		b.BCoord[0]++;
-		break;
-	case LEFT:
-		b.RCoord[1]--;
-		b.BCoord[1]--;
-		break;
-	case RIGHT:
-		b.RCoord[1]++;
-		b.BCoord[1]++;
-		break;
-	default:
-		break;
-	}
-	return b;
-}
-
 int main() {
 	//get input
 	std::string a, b;
 	int rows, cols;
-	std::getline(cin, a, ' ');
+	std::getline(std::cin, a, ' ');
 	rows = atoi(a.c_str());
-	std::getline(cin, b);
+	std::getline(std::cin, b);
 	cols = atoi(b.c_str());
 
 	Coords start;
 
 	std::string line;
 	for (int i = 0; i < rows; i++) {
-		std::getline(cin, line);
+		std::getline(std::cin, line);
 		for (int j = 0; j < cols; j++) {
 			if (line[j] == 'R') {
 				start.RCoord[0] = i;
@@ -90,26 +57,88 @@ int main() {
 	for (int i = 0; i < MAX; i++) for (int j = 0; j < MAX; j++) for (int k = 0; k < MAX; k++) for (int l = 0; l < MAX; l++) visited[i][j][k][l] = false;
 	
 	//bfs
+	int dy[4] = {-1, 1, 0, 0};
+	int dx[4] = {0, 0, -1, 1};
+
 	std::queue<Coords> c_queue;
 	c_queue.push(start);
 	Coords current;
-	Coords temp = current;
+
+	int count = 0;
+	bool hit = false;
+
 	while (1) {
+		Coords temp;
+
 		if (c_queue.empty()) { break; }
 		current = c_queue.front();
 		c_queue.pop();
 		if (current.count >= 10) { break; }
 		visited[current.RCoord[0]][current.RCoord[1]][current.BCoord[0]][current.BCoord[1]] = true;
 
-		for (int i = UP; i < LAST; i++) {
-			while (1) {
-				temp = moveOneTo(i, temp);
-				if () {
+		for (int i = 0; i < 4; i++) {
+			bool Rstop = false;
+			bool Bstop = false;
+			bool Rhit = false;
+			bool Bhit = false;
+			temp = current;
 
+			while(1) {
+				temp.RCoord[0] += dy[i];
+				temp.RCoord[1] += dx[i];
+				temp.BCoord[0] += dy[i];
+				temp.BCoord[1] += dx[i];
+
+				if(mapdata[temp.BCoord[0]][temp.BCoord[1]] == '#') {
+					temp.BCoord[0] -= dy[i];
+					temp.BCoord[1] -= dx[i];
+					Bstop = true;
+				}else if(mapdata[temp.BCoord[0]][temp.BCoord[1]] == 'O') {
+					//when blue ball hits
+					Bhit = true;
 				}
-				
-				
-			}
+
+				if(mapdata[temp.RCoord[0]][temp.RCoord[1]] == '#') {
+					temp.RCoord[0] -= dy[i];
+					temp.RCoord[1] -= dx[i];
+					Rstop = true;
+				}else if(mapdata[temp.RCoord[0]][temp.RCoord[1]] == 'O') {
+					//when red ball hits
+					Rhit = true;
+				}
+
+				if(temp.RCoord[0] == temp.BCoord[0] && temp.RCoord[1] == temp.BCoord[1]) {
+					//overlap condition
+					if(Rstop) {
+						temp.BCoord[0] -= dy[i];
+						temp.BCoord[1] -= dx[i];
+						Bstop = true;
+					} else {
+						temp.RCoord[0] -= dy[i];
+						temp.RCoord[1] -= dx[i];
+						Rstop = true;
+					}
+				}
+
+				if(Rstop && Bstop) {
+					if(!visited[temp.RCoord[0]][temp.RCoord[1]][temp.BCoord[0]][temp.BCoord[1]]) {
+						temp.count++;
+						if(Bhit) {
+							break;
+						} else if(Rhit) {
+							hit = true;
+							count = temp.count;
+							break;
+						}
+						c_queue.push(temp);
+					}
+					break;
+				}            
+			}				
 		}
+		if(hit) { break; }
 	}
+
+	if(!hit) {count = -1;}
+	std::cout<<count;
 }
