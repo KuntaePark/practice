@@ -1,11 +1,14 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <time.h>
 
 #define MAX 20
 //12100
 int max = 0;
 int dyx[2][4] ={{-1,1,0,0},{0,0,-1,1}};
+int cur = 0;
+int mapq[1024][MAX][MAX];
 
 void printArray(int map[][MAX], int size) {
     for(int i = 0; i < size; i++) {
@@ -21,15 +24,15 @@ void move(int _map[][MAX], int size, int n) {
 
     int map[MAX][MAX];
     bool merged[MAX][MAX];
-    std::cout<<n<<std::endl;
-    printArray(_map, size);
+    //std::cout<<n<<std::endl;
+    //printArray(_map, size);
 
-    if(n >= 5) {return;}
+    if(n >= 5) return;
 
     for(int i = 0; i < 4; i++) {
         //std::cout<<"direction: "<<i<<std::endl;
         std::copy(&_map[0][0], &_map[0][0] + MAX * MAX, &map[0][0]);
-        for(int a = 0; a < MAX; a++) for (int b = 0; b < MAX; b++) {merged[a][b] = false;}
+        for(int a = 0; a < MAX; a++) for (int b = 0; b < MAX; b++) merged[a][b] = false;
 
         for(int j = 0; j < size; j++) for(int k = 0; k < size; k++) {
             int y,x,ny,nx;
@@ -41,33 +44,29 @@ void move(int _map[][MAX], int size, int n) {
             nx = x + dyx[1][i];
 
             while(1) {
-                if(map[y][x] == 0) {break;}
-                if(ny < 0 || ny >= size || nx < 0 || nx >= size) {
-                    break;
-                } else {
-                    if(map[ny][nx] == map[y][x]) {
-                        if(!merged[ny][nx]) {
-                            map[ny][nx] *= 2;
-                            merged[ny][nx] = true;
-                            map[y][x] = 0;
-                            if(map[ny][nx] > max) {max = map[ny][nx]; }
-                            break;
-                        }
-                    }else if(map[ny][nx] == 0) {
-                        map[ny][nx] = map[y][x];
+                if(map[y][x] == 0) break;
+                if(ny < 0 || ny >= size || nx < 0 || nx >= size) break;
+                if(map[ny][nx] == map[y][x]) {
+                    if(!merged[ny][nx]) {
+                        map[ny][nx] *= 2;
+                        merged[ny][nx] = true;
                         map[y][x] = 0;
-                    } else {
+                        if(map[ny][nx] > max) max = map[ny][nx];
                         break;
                     }
+                }else if(map[ny][nx] == 0) {
+                    map[ny][nx] = map[y][x];
+                    map[y][x] = 0;
                     y = ny;
                     x = nx;
                     ny = y + dyx[0][i];
                     nx = x + dyx[1][i];
-                    //printArray(map,size);
+                } else {
+                    break;
                 }
             }
         }
-        std::cout<<"direction: "<<i<<std::endl;
+        //std::cout<<"direction: "<<i<<std::endl;
         move(map, size, n+1);
     }
 }
@@ -79,12 +78,12 @@ int main() {
 
     for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) {
         scanf("%d", &map[i][j]);
-        if(map[i][j] > max) {max = map[i][j];}
+        if(map[i][j] > max) max = map[i][j];
 
     }
-
+    clock_t start = clock();
     move(map,n,0);
-
+    printf("Time taken: %.2fs\n", (double)(clock() - start)/CLOCKS_PER_SEC);
     std::cout<<max;
 
 }
