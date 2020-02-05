@@ -1,36 +1,20 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <time.h>
 
 #define MAX 20
 //12100
 int max = 0;
 int dyx[2][4] ={{-1,1,0,0},{0,0,-1,1}};
-int cur = 0;
-int mapq[1024][MAX][MAX];
-
-void printArray(int map[][MAX], int size) {
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < size; j++) {
-            std::cout<< map[i][j] << " ";
-        }
-        std::cout<<std::endl;
-    }
-    std::cout<<std::endl;
-}
 
 void move(int _map[][MAX], int size, int n) {
 
     int map[MAX][MAX];
     bool merged[MAX][MAX];
-    //std::cout<<n<<std::endl;
-    //printArray(_map, size);
 
     if(n >= 5) return;
 
     for(int i = 0; i < 4; i++) {
-        //std::cout<<"direction: "<<i<<std::endl;
         std::copy(&_map[0][0], &_map[0][0] + MAX * MAX, &map[0][0]);
         for(int a = 0; a < MAX; a++) for (int b = 0; b < MAX; b++) merged[a][b] = false;
 
@@ -39,7 +23,6 @@ void move(int _map[][MAX], int size, int n) {
 
             y = (size-1) * (((1+dyx[0][i])/2) + ((1-dyx[1][i])/2)) - dyx[0][i] * j + dyx[1][i] * k;
             x = (size-1) * (((1+dyx[1][i])/2) + ((1+dyx[0][i])/2)) - dyx[1][i] * j - dyx[0][i] * k;
-//            std::cout<<y<<","<<x<<std::endl;
             ny = y + dyx[0][i];
             nx = x + dyx[1][i];
 
@@ -52,8 +35,8 @@ void move(int _map[][MAX], int size, int n) {
                         merged[ny][nx] = true;
                         map[y][x] = 0;
                         if(map[ny][nx] > max) max = map[ny][nx];
-                        break;
                     }
+                    break;
                 }else if(map[ny][nx] == 0) {
                     map[ny][nx] = map[y][x];
                     map[y][x] = 0;
@@ -66,7 +49,6 @@ void move(int _map[][MAX], int size, int n) {
                 }
             }
         }
-        //std::cout<<"direction: "<<i<<std::endl;
         move(map, size, n+1);
     }
 }
@@ -81,9 +63,7 @@ int main() {
         if(map[i][j] > max) max = map[i][j];
 
     }
-    clock_t start = clock();
     move(map,n,0);
-    printf("Time taken: %.2fs\n", (double)(clock() - start)/CLOCKS_PER_SEC);
     std::cout<<max;
 
 }
