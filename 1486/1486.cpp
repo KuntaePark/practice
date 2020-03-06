@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <tuple>
+#include <cmath>
 
 #define MAX 25
 #define VMAX 625
@@ -33,11 +34,10 @@ void initDistMap() {
                 start = coordToN(i,j);
                 dest = coordToN(ny, nx);
                 diff = M[ny][nx] - M[i][j];
-                if(diff <= 0) {
-                    distM[start][dest] = 1;
-                } else if(diff <= t){
-                    distM[start][dest] = diff * diff;
-                }
+				if (std::abs(diff) <= t) {
+					if (diff <= 0) distM[start][dest] = 1;
+					else distM[start][dest] = diff * diff;
+				}
             }
         }
     }
