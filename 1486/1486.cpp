@@ -1,11 +1,10 @@
 #include <iostream>
 #include <cstring>
 #include <tuple>
-#include <cmath>
 
 #define MAX 25
 #define VMAX 625
-#define INF 45674567
+#define INF 1000001
 //1486
 
 int n, m, t, d;
@@ -33,8 +32,8 @@ void initDistMap() {
             else {
                 start = coordToN(i,j);
                 dest = coordToN(ny, nx);
-                diff = std::abs(M[i][j] - M[ny][nx]);
-                if(M[i][j] >= M[ny][nx]) {
+                diff = M[ny][nx] - M[i][j];
+                if(diff <= 0) {
                     distM[start][dest] = 1;
                 } else if(diff <= t){
                     distM[start][dest] = diff * diff;
@@ -47,7 +46,7 @@ void initDistMap() {
 void calDist() {
     int nm = n * m;
     for(int k = 0; k < nm; k++) for(int i = 0; i < nm; i++) for(int j = 0; j < nm; j++) {
-            if(distM[i][j] > distM[i][k] + distM[k][j]) distM[i][j] = distM[i][k] + distM[k][j];
+		if(distM[i][j] > distM[i][k] + distM[k][j]) distM[i][j] = distM[i][k] + distM[k][j];
     }
 }
 
@@ -79,6 +78,4 @@ int main() {
     initDistMap();
     calDist();
     std::cout<<getHighest();
-
-
 }
